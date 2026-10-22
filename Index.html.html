@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultant Directory</title>
+    <!-- FontAwesome Vector Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Modern Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #0f172a;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --accent-color: #0ea5e9;
+            --accent-light: #e0f2fe;
+            --border-color: #e2e8f0;
+        }
+
+        /* Custom Scrollbar Effect */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* --- Global Animations --- */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes animatedBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .animate-entrance {
+            opacity: 0;
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* --- Layout --- */
+        .app-container {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 320px;
+            background-color: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.04);
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+            box-sizing: border-box;
+            animation-delay: 0.1s;
+        }
+
+        .sidebar h2 {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* --- Hospital Themed Sidebar Buttons --- */
+        .clinic-list-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid transparent;
+            border-left: 4px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .clinic-list-item::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, rgba(14, 165, 233, 0.1) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .clinic-list-item > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .clinic-list-item i {
+            color: var(--accent-color);
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .clinic-list-item:hover {
+            background: var(--card-bg);
+            color: #0369a1;
+            transform: translateX(6px);
+            border-color: #bae6fd;
+            border-left-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.12);
+        }
+
+        .clinic-list-item:hover::before {
+            opacity: 1;
+        }
+
+        .clinic-list-item:hover i {
+            color: #ef4444; 
+            animation: heartbeat 1.2s infinite;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.3); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.3); }
+            70% { transform: scale(1); }
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: calc(100% - 320px);
+        }
+
+        /* Animated Header Effect */
+        header {
+            width: 100%;
+            background: linear-gradient(-45deg, #0f172a, #1e293b, #0369a1, #0ea5e9);
+            background-size: 400% 400%;
+            animation: animatedBackground 12s ease infinite;
+            color: white;
+            text-align: center;
+            padding: 3rem 1rem 3.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-sizing: border-box;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+        
+        .header-content {
+            animation-delay: 0.2s;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            color: #e2e8f0;
+            font-size: 1rem;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+
+        /* Search Bar Effects */
+        .search-container {
+            margin: -25px auto 0;
+            position: relative;
+            width: 90%;
+            max-width: 650px;
+            z-index: 10;
+            animation-delay: 0.3s;
+        }
+
+        .search-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-wrapper i.search-icon {
+            position: absolute;
+            left: 24px;
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            pointer-events: none;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 20px 20px 20px 60px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            border: 2px solid transparent;
+            border-radius: 50px;
+            background-color: var(--card-bg);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            outline: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: var(--primary-color);
+            box-sizing: border-box;
+        }
+
+        #searchInput:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 15px 35px rgba(14, 165, 233, 0.3), 0 0 0 4px rgba(14, 165, 233, 0.1);
+            transform: translateY(-2px) scale(1.01);
+        }
+
+        #searchInput:focus + i.search-icon {
+            transform: scale(1.1);
+        }
+
+        /* Results Container */
+        main {
+            width: 90%;
+            max-width: 800px;
+            margin-top: 3rem;
+            padding-bottom: 4rem;
+            flex: 1;
+        }
+
+        .results-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hospital-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+            border: 1px solid var(--border-color);
+            border-left: 5px solid var(--accent-color);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+        }
+
+        .hospital-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.08);
+            border-color: #cbd5e1;
+            border-left-width: 8px;
+        }
+
+        .hospital-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hospital-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hospital-icon {
+            color: var(--accent-color);
+            font-size: 1.1rem;
+            background: var(--accent-light);
+            padding: 8px 10px;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .hospital-card:hover .hospital-icon {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        .hospital-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        .badge-clinic {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #0369a1;
+            background: var(--accent-light);
+            padding: 5px 12px;
+            border-radius: 20px;
+            box-shadow: inset 0 0 0 1px rgba(14, 165, 233, 0.2);
+        }
+
+        .toggle-arrow {
+            color: #94a3b8;
+            font-size: 1rem;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: var(--bg-color);
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .hospital-card.expanded .toggle-arrow {
+            transform: rotate(180deg);
+            color: white;
+            background: var(--accent-color);
+            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);
+        }
+
+        /* Consultant List */
+        .consultant-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease, margin-top 0.4s ease;
+            opacity: 0;
+            margin-top: 0;
+        }
+
+        .hospital-card.expanded .consultant-list {
+            max-height: 500px;
+            opacity: 1;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .consultant-item {
+            padding: 12px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            border-bottom: 1px dashed var(--border-color);
+            transition: background 0.2s ease, padding-left 0.2s ease;
+        }
+        
+        .consultant-item:hover {
+            background-color: #f8fafc;
+            padding-left: 10px;
+            border-radius: 8px;
+            border-bottom-color: transparent;
+        }
+
+        .consultant-item:last-child {
+            border-bottom: none;
+        }
+
+        .doc-icon {
+            color: var(--accent-color);
+            font-size: 1rem;
+            margin-top: 4px;
+            background: white;
+            padding: 8px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .doc-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .doc-name {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 1rem;
+        }
+
+        .doc-desig {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 3px;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #64748b;
+            font-size: 1.05rem;
+            margin-top: 2rem;
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+            animation: fadeUp 0.5s ease forwards;
+        }
+
+        .no-results i {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 15px;
+            display: block;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Footer */
+        footer {
+            width: 100%;
+            padding: 25px;
+            color: #64748b;
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        footer p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .dev-credit {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 10px;
+        }
+        
+        .dev-credit strong {
+            color: var(--accent-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .app-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                max-height: 350px;
+            }
+            .main-content {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- Sidebar with Clinics -->
+        <aside class="sidebar animate-entrance">
+            <h2><i class="fa-solid fa-list-ul"></i> All Clinics</h2>
+            <ul id="clinicList">
+                <!-- Clinics will be injected here via JavaScript -->
+            </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <header>
+                <div class="header-content animate-entrance">
+                    <h1>Consultant Directory</h1>
+                    <p>Search for a clinic or specialty to locate hospitals and doctors</p>
+                </div>
+            </header>
+
+            <!-- Search Bar overlapping header -->
+            <div class="search-container animate-entrance">
+                <div class="search-wrapper">
+                    <input type="text" id="searchInput" placeholder="Search Clinic (e.g., Cardiology, Vascular, Neurology)...">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                </div>
+            </div>
+
+            <main>
+                <h2 class="results-title" id="resultsTitle">
+                    <i class="fa-solid fa-hospital-user" style="color: var(--accent-color);"></i>
+                    Matching Hospitals & Clinics
+                </h2>
+                <div id="resultsContainer"></div>
+            </main>
+
+            <footer>
+                <p><i class="fa-solid fa-circle-info"></i> Hospital Directory System</p>
+                <p class="dev-credit">
+                    Dev by <strong>DaNuka</strong> &nbsp;|&nbsp; 
+                    <i class="fa-solid fa-calendar-check" style="color: #10b981;"></i> Up to date on: <strong id="currentDate"></strong>
+                </p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // --- Medical Data ---
+        const medicalData = [
+            { clinic: "Surgical Clinic", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. Hasitha Udayakumara", title: "Acting Consultant General Surgeon" }, { name: "Dr. Ajith Ranasinghe", title: "Surgeon" }]}] },
+            { clinic: "Medical Clinic", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. T. Veerasuthen", title: "Physician" }, { name: "Dr. Nilantha Gamage", title: "Consultant Physician" }, { name: "Dr. Janitha Gunasena", title: "Physician" }, { name: "Dr. Malkanthi Galhena", title: "Family Physician (Family Medical Clinic)" }]}] },
+            { clinic: "VP-OPD Clinic", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. WJR Fernando", title: "Acting Consultant Physician" }] }, { name: "Kethumathi Maternity Hospital", consultants: [{ name: "Dr. Ajith Kariyawasam", title: "Physician" }]}] },
+            { clinic: "Paediatric Clinic", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. Srian Fernando", title: "Paediatrician" }, { name: "Dr. Suroopi Abaygunawardane", title: "Paediatrician" }, { name: "Dr. Surantha Perera", title: "Paediatrician / Neonatologist" }]}] },
+            { clinic: "Cardiology Clinic", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. Thisal Semina", title: "Cardiologist" }] }, { name: "Teaching Hospital – Kalutara", consultants: [{ name: "Dr. M. Sathviraj", title: "Cardiologist" }, { name: "Dr. Eranga Colombage", title: "Cardiologist" }, { name: "Dr. Ravi Gajaweera", title: "Cardiologist" }, { name: "Dr. Nilushka Rajapaksha", title: "Cardiologist" }]}] },
+            { clinic: "Vascular and Transplant Surgery", hospitals: [{ name: "Teaching Hospital – Kalutara", consultants: [{ name: "Dr. Prageeth Lambiyas", title: "Vascular and Transplant Surgeon" }]}] },
+            { clinic: "Neurology Clinic", hospitals: [{ name: "Teaching Hospital – Kalutara", consultants: [{ name: "Dr. Surangi Somarathna", title: "Neurologist" }] }, { name: "Colombo South Teaching Hospital", consultants: [{ name: "Prof. Saman Gunathilake", title: "Neurologist" }, { name: "Dr. Senaka Bandusena", title: "Neurologist" }, { name: "Dr. V.T. Rajendrian", title: "Neurologist" }]}, { name: "National Hospital Colombo", consultants: [{ name: "Dr. Arjuna Fernando", title: "Neurologist" }, { name: "Dr. Bimsara Senanayake", title: "Neurologist" }, { name: "Dr. Senaka Bandusena", title: "Neurologist" }, { name: "Dr. Gamini Pathirana", title: "Neurologist" }]}] },
+            { clinic: "Endocrine Clinic", hospitals: [{ name: "Teaching Hospital – Kalutara", consultants: [{ name: "Dr. Kamani Liyanarachchi", title: "Endocrinologist" }] }, { name: "Colombo South Teaching Hospital", consultants: [{ name: "Dr. Uditha Bulughapitiya", title: "Endocrinologist" }]}, { name: "National Hospital Colombo", consultants: [{ name: "Dr. Manilka Sumanatilleke", title: "Endocrinologist" }, { name: "Dr. Uditha Bulugahapitiya", title: "Endocrinologist" }, { name: "Dr. Mrs. Sivatharshya Pathmanathan", title: "Endocrinologist" }]}] },
+            { clinic: "Rheumatology Clinic", hospitals: [{ name: "Teaching Hospital – Kalutara", consultants: [{ name: "Dr. Sajeewani Dissanayake", title: "Rheumatologist" }, { name: "Dr. Nuwan Wijayalath", title: "Rheumatologist" }]}, { name: "Colombo South Teaching Hospital", consultants: [{ name: "Dr. Kelum De Silva", title: "Rheumatologist" }]}, { name: "National Hospital Colombo", consultants: [{ name: "Dr. Indika Gurusinghe", title: "Rheumatologist" }, { name: "Dr. Monika De Silva", title: "Rheumatologist" }, { name: "Dr. Usha Gowri", title: "Rheumatologist" }, { name: "Dr. Gunendrika Kasthuriratne", title: "Rheumatologist" }]}] },
+            { clinic: "Gastroenterology Clinic", hospitals: [{ name: "Teaching Hospital – Kalutara", consultants: [{ name: "Dr. Vithiya Rishikesavan", title: "Gastroenterologist" }] }, { name: "Colombo South Teaching Hospital", consultants: [{ name: "Dr. Amal Priyantha", title: "G.E. Surgeon" }, { name: "Dr. Sanjeewa Ariyasingha", title: "Gastroenterologist" }]}] },
+            { clinic: "Orthopaedic Clinic", hospitals: [{ name: "Teaching Hospital – Kalutara", consultants: [{ name: "Dr. S.C. Kaluthotage", title: "Orthopaedic Surgeon" }, { name: "Dr. Chathuranga Amaraweera", title: "Orthopaedic Surgeon" }]}, { name: "Colombo South Teaching Hospital", consultants: [{ name: "Dr. R.D.G.M.C. Almeda", title: "Orthopaedic Surgeon" }]}] },
+            { clinic: "Gynecology Clinic", hospitals: [{ name: "Kethumathi Maternity Hospital", consultants: [{ name: "Dr. Hiranthi Solangaarachchi", title: "Gynaecologist" }, { name: "Dr. K. Jayasri", title: "Gynaecologist" }]}] },
+            { clinic: "Neuro Surgical Clinic", hospitals: [{ name: "National Hospital Colombo", consultants: [{ name: "Dr. Deepal Attanayake", title: "Neuro Surgeon" }, { name: "Dr. Stravinsky Perera", title: "Neuro Surgeon" }, { name: "Dr. Sanjeewa Gurusinghe", title: "Neuro Surgeon" }, { name: "Dr. Nilukshana Jayasinghe", title: "Neuro Surgeon" }]}] },
+            { clinic: "Nerve Conduction Clinic", hospitals: [{ name: "National Hospital Colombo", consultants: [{ name: "Dr. T. Thiwakaran", title: "Neurophysiologist" }, { name: "Dr. Lakmini Pathberiya", title: "Neurophysiologist" }, { name: "Dr. Sudath Gunasekera", title: "Neuro Physician" }]}] },
+            { clinic: "Eye Clinic", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. Sachintha Lokuarachchi", title: "Eye Surgeon / Ophthalmologist" }, { name: "Dr. Chanika Gamage", title: "Eye Surgeon" }] }] },
+            { clinic: "OMF Clinic", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. Sarath Wijesinghe", title: "OMF Surgeon" }] }] },
+            { clinic: "ENT Clinic", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. Asanga Priyadarshana", title: "ENT Surgeon" }] }] },
+            { clinic: "Skin Clinic", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. Amitha Nelumdeniya", title: "Dermatologist" }] }] },
+            { clinic: "Hematology Clinic", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. Thanuja Dissanayaka", title: "Hematologist" }] }] },
+            { clinic: "S.T.D Clinic", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. Damindu Thanthree", title: "STD Specialist / Venereologist" }, { name: "Dr. Kokilanti Dharmarathna", title: "Venereologist" }] }] },
+            { clinic: "Radiology", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. Apsara Epa", title: "Radiologist" }] }] },
+            { clinic: "Nephrology Clinic", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. Rushdie Nizam", title: "Nephrologist" }] }] },
+            { clinic: "Chest Clinic", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "MO Chest Clinic", title: "BH Panadura" }] }] },
+            { clinic: "Anaesthesiology", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. Manel Kumari", title: "Anaesthesiologist" }] }] },
+            { clinic: "Psychiatric Clinic", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. P.G.P.A. Thejarathna", title: "Psychiatrist" }] }] },
+            { clinic: "Nutrition Clinic", hospitals: [{ name: "Base Hospital Panadura", consultants: [{ name: "Dr. Nirosha Pushpakumara", title: "Nutritionist" }] }] },
+            { clinic: "Genito Urinary Surgeon", hospitals: [{ name: "Teaching Hospital – Kalutara", consultants: [{ name: "Dr. Aravinthan Thevaraja", title: "G.U. Surgeon" }] }] },
+            { clinic: "Oncology Clinic", hospitals: [{ name: "Colombo South Teaching Hospital", consultants: [{ name: "Dr. Mrs. Sujeewa Weerasinghe", title: "Oncologist" }] }] },
+            { clinic: "Cardiac Electrophysiology Clinic", hospitals: [{ name: "National Hospital Colombo", consultants: [{ name: "Dr. Rohan Gunawardena", title: "Cardiac Electrophysiologist" }] }] }
+        ];
+
+        const searchInput = document.getElementById('searchInput');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const resultsTitle = document.getElementById('resultsTitle');
+        const clinicListEl = document.getElementById('clinicList');
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const today = new Date();
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = today.toLocaleDateString('en-US', dateOptions);
+
+            renderSidebar();
+        });
+
+        function renderSidebar() {
+            clinicListEl.innerHTML = '';
+            medicalData.forEach(data => {
+                const li = document.createElement('li');
+                li.className = 'clinic-list-item';
+                li.innerHTML = `<i class="fa-solid fa-heart-pulse"></i> <span>${data.clinic}</span>`;
+                
+                li.addEventListener('click', () => {
+                    searchInput.value = data.clinic;
+                    searchInput.dispatchEvent(new Event('input'));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                
+                clinicListEl.appendChild(li);
+            });
+        }
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            resultsContainer.innerHTML = '';
+            
+            if (query === '') {
+                resultsTitle.style.display = 'none';
+                return;
+            }
+
+            const matchedClinics = medicalData.filter(data => 
+                data.clinic.toLowerCase().includes(query)
+            );
+
+            resultsTitle.style.display = 'flex';
+
+            if (matchedClinics.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <i class="fa-solid fa-file-medical"></i>
+                        No clinics or consultants found matching "${this.value}".
+                    </div>`;
+                return;
+            }
+
+            let cardIndex = 0;
+
+            matchedClinics.forEach(data => {
+                data.hospitals.forEach(hospital => {
+                    const card = document.createElement('div');
+                    card.className = 'hospital-card';
+                    card.style.animation = `fadeUp 0.5s ease forwards`;
+                    card.style.animationDelay = `${cardIndex * 0.1}s`;
+                    cardIndex++;
+                    
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = 'hospital-header';
+                    headerDiv.innerHTML = `
+                        <div class="hospital-info">
+                            <i class="fa-solid fa-hospital hospital-icon"></i>
+                            <h3 class="hospital-name">${hospital.name}</h3>
+                            <span class="badge-clinic">${data.clinic}</span>
+                        </div>
+                        <div class="toggle-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+                    `;
+                    
+                    const listContainer = document.createElement('div');
+                    listContainer.className = 'consultant-list';
+                    
+                    hospital.consultants.forEach(consultant => {
+                        const item = document.createElement('div');
+                        item.className = 'consultant-item';
+                        item.innerHTML = `
+                            <i class="fa-solid fa-user-doctor doc-icon"></i>
+                            <div class="doc-details">
+                                <span class="doc-name">${consultant.name}</span>
+                                <span class="doc-desig">${consultant.title}</span>
+                            </div>
+                        `;
+                        listContainer.appendChild(item);
+                    });
+
+                    card.addEventListener('click', () => {
+                        card.classList.toggle('expanded');
+                    });
+
+                    if (data.clinic.toLowerCase() === query) {
+                        card.classList.add('expanded');
+                    }
+
+                    card.appendChild(headerDiv);
+                    card.appendChild(listContainer);
+                    resultsContainer.appendChild(card);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
